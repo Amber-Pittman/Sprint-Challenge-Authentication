@@ -4,8 +4,7 @@ const authenticate = require("../auth/authenticate-middleware")
 
 const router = express.Router()
 
-// This endpoint is only available to logged-in admin users due to the `restrict` middleware
-router.get("/", authenticate("admin"), async (req, res, next) => {
+router.get("/", authenticate(), async (req, res, next) => {
 	try {
 		res.json(await Users.find())
 	} catch(err) {

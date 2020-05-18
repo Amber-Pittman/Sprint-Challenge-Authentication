@@ -1,37 +1,41 @@
 /* 
   complete the middleware code to check if the user is logged in
   before granting access to the next middleware/route handler
-*/
-const jwt = require("jsonwebtoken")
+*/const bcrypt = require("bcryptjs")
+const Users = require("../users/users-model")
 
-function restrict(role = "normal") {
-  return async (req, res, next) => {
-    const authError = {
-      message: "You shall not pass!",
-    }
+function authenticate() {
+	// put in variable so we can re-use it
+	const authError = {
+		message: "Invalid credentials",
+	}
+	
+	return async (req, res, next) => {
+		try {
+			const { username, password } = req.headers
+			// make sure the values aren't empty
+			if (!username || !password) {
+				return res.status(401).json(authError)
+			}
 
-    try {
-      console.log(req.headers)
+			const user = await Users.findBy({ username }).first()
+			// make sure the user exists
+			if (!user) {
+				return res.status(401).json(authError)
+			}
 
-      const token = req.cookies.token
-      if (!token) {
-        return res.status(401).json(authError)
-      }
+			const passwordValid = await bcrypt.compare(password, user.password)
+			// make sure the password is correct
+			if (!passwordValid) {
+				return res.status(401).json(authError)
+			}
 
-      jwt.verify(
-        token,
-        process.env.JWT_SECRET,
-        (err, decodedPayload) => {
-          if (err || decodedPayload.userRole !== role) {
-            return res.status(401).json(authError)
-          }
-          req.token = decodedPayload
-          next()
-        })
-    } catch(err) {
-      next(err)
-    }
-  }
+			// if we reach this point, the user is authenticated!
+			next()
+		} catch(err) {
+			next(err)
+		}
+	}
 }
 
-module.exports = restrict
+module.exports = authenticate

@@ -1,15 +1,15 @@
-exports.up = function(knex) {
-  return knex.schema.createTable('users', users => {
-    users.increments();
+exports.up = async function(knex) {
+  await knex.schema.createTable("users", (table) => {
+    table.increments();
 
-    users
+    table
       .string('username', 255)
       .notNullable()
       .unique();
-    users.string('password', 255).notNullable();
+      table.string('password', 255).notNullable();
   });
 };
 
-exports.down = function(knex, Promise) {
-  return knex.schema.dropTableIfExists('users');
+exports.down = async function(knex) {
+  await knex.schema.dropTableIfExists("users");
 };

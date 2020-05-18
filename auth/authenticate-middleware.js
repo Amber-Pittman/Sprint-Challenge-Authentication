@@ -1,37 +1,28 @@
-/* 
-  complete the middleware code to check if the user is logged in
-  before granting access to the next middleware/route handler
-*/const bcrypt = require("bcryptjs")
-const Users = require("../users/users-model")
+const jwt = require("jsonwebtoken")
 
 function authenticate() {
-	// put in variable so we can re-use it
-	const authError = {
-		message: "Invalid credentials",
-	}
-	
 	return async (req, res, next) => {
+		const authError = {
+			message: "Invalid credentials",
+		}
+
 		try {
-			const { username, password } = req.headers
-			// make sure the values aren't empty
-			if (!username || !password) {
+			console.log(req.headers)
+			const token = req.headers.authorization
+			//const token = req.cookies.token
+ 			if (!token) {
 				return res.status(401).json(authError)
 			}
 
-			const user = await Users.findBy({ username }).first()
-			// make sure the user exists
-			if (!user) {
-				return res.status(401).json(authError)
-			}
+			jwt.verify(token, process.env.JWT_SECRET, (err, decodedPayload) => {
+				if (err) {
+					return res.status(401).json(authError)
+				}
 
-			const passwordValid = await bcrypt.compare(password, user.password)
-			// make sure the password is correct
-			if (!passwordValid) {
-				return res.status(401).json(authError)
-			}
+				req.token = decodedPayload
 
-			// if we reach this point, the user is authenticated!
-			next()
+				next()
+			})
 		} catch(err) {
 			next(err)
 		}

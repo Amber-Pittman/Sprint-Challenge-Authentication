@@ -8,14 +8,9 @@ module.exports = {
       directory: './database/migrations',
     },
     seeds: { directory: './database/seeds' },
-    
-    pool: {
-      afterCreate: (conn, done) => {
-        conn.run('PRAGMA foreign_keys = ON', done);
-      },
     },
-  },
-  test: {
+
+  testing: {
     client: 'sqlite3',
     connection: { filename: './database/auth-test.db3' },
     useNullAsDefault: true,

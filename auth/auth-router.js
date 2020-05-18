@@ -1,8 +1,10 @@
-const router = require("express").Router()
 const bcrypt = require("bcryptjs")
-const Users = require("../users/users-model")
 const jwt = require("jsonwebtoken")
-const authenticate = require("./authenticate-middleware")
+const Users = require("../users/users-model")
+//const authenticate = require("./authenticate-middleware")
+//const db = require("../database/dbConfig")
+
+const router = require("express").Router()
 
 router.post("/register", async (req, res, next) => {
 	try {
@@ -22,20 +24,27 @@ router.post("/register", async (req, res, next) => {
 })
 
 router.post("/login", async (req, res, next) => {
+	const authError = {
+		message: "Invalid Credentials",
+	}
+
 	try {
-		const { username, password } = req.body
-		const user = await Users.findBy({ username }).first()
-
-		// since bcrypt hashes generate different results due to the salting,
-		// we rely on the magic internals to compare hashes rather than doing it
-		// manually with "!=="
-		const passwordValid = await bcrypt.compare(password, user.password)
-
-		if (!user || !passwordValid) {
-			return res.status(401).json({
-				message: "Invalid Credentials",
-			})
+		const user = await Users.findBy({ username: req.body.username }).first()
+		if (!user) {
+			return res.status(401).json(authError)
 		}
+
+		const passwordValid = await bcrypt.compare(req.body.password, user.password)
+		if (!passwordValid) {
+			return res.status(401).json(authError)
+		}
+
+		const tokenPayload = {
+			userId: user.id,
+			//userRole: "admin",
+		}
+
+		res.cookie("token", jwt.sign(tokenPayload, process.env.JWT_SECRET))
 
 		res.json({
 			message: `Welcome ${user.username}!`,
@@ -45,16 +54,4 @@ router.post("/login", async (req, res, next) => {
 	}
 })
 
-router.get("/logout", authenticate(), (req, res, next) => {
-	req.session.destroy((err) => {
-		if (err) {
-			next(err)
-		} else {
-			res.json({
-				message: "Logged out",
-			})
-		}
-	})
-})
-
-module.exports = router;
+module.exports = router

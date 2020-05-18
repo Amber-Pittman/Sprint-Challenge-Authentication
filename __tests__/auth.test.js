@@ -1,13 +1,14 @@
 const supertest = require('supertest');
 const server = require('../api/server');
 const db = require('../database/dbConfig');
+const Users = require("../users/users-model")
 
 beforeEach(async () => {
-  await db.seed.run()
-})
+    await db("users").truncate();
+  })
 
 afterAll(async () => {
-    await db("users").destroy()
+    await db.destroy()
 })
 
 describe("AuthN Integration Tests", () => {
@@ -25,7 +26,7 @@ describe("AuthN Integration Tests", () => {
     })
 
     it("Doesn't Register New User", async () => {
-		const res = await supertest(server).get("/api/auth/register")
+		const res = await supertest(server).post("/api/auth/register")
 		expect(res.statusCode).toBe(500)
     })
 
@@ -37,7 +38,7 @@ describe("AuthN Integration Tests", () => {
 
         const res = await supertest(server).post("/api/auth/login").send(user)
 
-        expect(res.statusCode).toBe(201)
+        expect(res.statusCode).toBe(200)
         expect(res.type).toBe("application/json")
     })
 

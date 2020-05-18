@@ -5,10 +5,8 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "test:watch": "cross-env NODE_ENV=testing jest --watch",
-    "test": "cross-env NODE_ENV=testing jest",
-    "start:watch": "cross-env NODE_ENV=development nodemon index.js",
-    "start": "cross-env NODE_ENV=production node index.js"
+    "test": "cross-env JWT_SECRET=testing jest --watch --verbose",
+    "server": "nodemon -r dotenv/config index.js"
   },
   "jest": {
     "testEnvironment": "node"

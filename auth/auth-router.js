@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
-const Users = require("../users/users-model")
-//const authenticate = require("./authenticate-middleware")
+const Users = require("./auth-model")
+const authenticate = require("./authenticate-middleware")
 //const db = require("../database/dbConfig")
 
 const router = require("express").Router()
@@ -23,7 +23,7 @@ router.post("/register", async (req, res, next) => {
 	}
 })
 
-router.post("/login", async (req, res, next) => {
+router.post("/login", authenticate(), async (req, res, next) => {
 	const authError = {
 		message: "Invalid Credentials",
 	}
@@ -44,10 +44,11 @@ router.post("/login", async (req, res, next) => {
 			//userRole: "admin",
 		}
 
-		res.cookie("token", jwt.sign(tokenPayload, process.env.JWT_SECRET))
+		//res.cookie("token", jwt.sign(tokenPayload, process.env.JWT_SECRET))
 
 		res.json({
 			message: `Welcome ${user.username}!`,
+			token: jwt.sign(tokenPayload, process.env.JWT_SECRET)
 		})
 	} catch(err) {
 		next(err)

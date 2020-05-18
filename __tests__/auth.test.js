@@ -13,24 +13,20 @@ afterAll(async () => {
 
 describe("AuthN Integration Tests", () => {
     it("Registers New User", async () => {
-        // const newUser = {
-        //     "username": "newUserTest",
-        //     "password": "newUserPassword"
-        // }
+        const newUser = {
+            username: "newUserTest",
+            password: "newUserPassword"
+        }
 
-        //const res = 
-        await supertest(server)
+        const res = await supertest(server)
             .post("/api/auth/register")
-            .send({
-                username: "newUserTest",
-                password: "newUserPassword"
-            })
-            .then(res => {
-                expect(res.statusCode).toBe(201)
-                expect(res.type).toBe("application/json")
-                expect(res.body.id).toBe(1)
-                expect(res.body.username).toMatch(/newusertest/i)
-            })
+            .send(newUser)
+            
+        expect(res.statusCode).toBe(201)
+        expect(res.type).toBe("application/json")
+        expect(res.body.id).toBe(1)
+        expect(res.body.username).toMatch(/newusertest/i)
+
     })
 
     it("Doesn't Register New User", async () => {
@@ -41,7 +37,8 @@ describe("AuthN Integration Tests", () => {
     it("Login the User", async () => {
         await Users.add({
             username: "newUserTest",
-            password: "newUserPassword"})
+            password: "newUserPassword"
+        })
 
         await supertest(server)
             .post("/api/auth/login")
@@ -50,10 +47,11 @@ describe("AuthN Integration Tests", () => {
                 password: "newUserPassword"
             })
             .then(res => {
-                expect(res.statusCode).toBe(201)
+                expect(res.statusCode).toBe(200)
                 expect(res.type).toBe("application/json")
                 expect(res.body.id).toBe(1)
                 expect(res.body.username).toMatch(/newusertest/i)
+                expect(res.body.message).toMatch('Welcome, you are authorized!')
             })
     })
 })

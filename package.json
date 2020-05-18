@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "Authentication Sprint Challenge",
   "main": "index.js",
-  "private": true,
   "scripts": {
-    "test": "cross-env JWT_SECRET=testing jest --watch --verbose",
+    "test": "cross-env NODE_ENV=testing jest --watch",
     "server": "nodemon -r dotenv/config index.js"
   },
   "jest": {

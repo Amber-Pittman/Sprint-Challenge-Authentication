@@ -1,12 +1,14 @@
 const jwt = require("jsonwebtoken")
+const secret = require("../config/secret")
 
 function authenticate() {
 	return async (req, res, next) => {
-		const authError = {
-			message: "Invalid credentials",
-		}
-
+		
 		try {
+			const authError = {
+				message: "Invalid credentials",
+			}
+	
 			console.log(req.headers)
 			const token = req.headers.authorization
 			//const token = req.cookies.token
@@ -14,7 +16,7 @@ function authenticate() {
 				return res.status(401).json(authError)
 			}
 
-			jwt.verify(token, process.env.JWT_SECRET, (err, decodedPayload) => {
+			jwt.verify(token, secret, (err, decodedPayload) => {
 				if (err) {
 					return res.status(401).json(authError)
 				}

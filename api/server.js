@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+require("dotenv").config
 
 const authenticate = require('../auth/authenticate-middleware.js');
 const authRouter = require('../auth/auth-router.js');
@@ -30,7 +31,7 @@ server.get("/", (req, res, next) => {
 })
 
 server.use((err, req, res, next) => {
-	console.log(err)
+	//console.log(err)
 	res.status(500).json({
 		message: "Something went wrong",
 	})

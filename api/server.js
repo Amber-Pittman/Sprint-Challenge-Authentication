@@ -20,7 +20,6 @@ server.use(express.json());
 
 server.use('/api/auth', authRouter);
 server.use("/api/users", usersRouter);
-//server.use(authenticate())
 server.use('/api/jokes', authenticate, jokesRouter);
 
 
@@ -31,7 +30,7 @@ server.get("/", (req, res, next) => {
 })
 
 server.use((err, req, res, next) => {
-	//console.log(err)
+	console.log(err)
 	res.status(500).json({
 		message: "Something went wrong",
 	})

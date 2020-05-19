@@ -50,7 +50,6 @@ describe("AuthN Integration Tests", () => {
                 expect(res.statusCode).toBe(200)
                 expect(res.type).toBe("application/json")
                 expect(res.body.message).toMatch(/Welcome/i)
-                
             })
     })
 })

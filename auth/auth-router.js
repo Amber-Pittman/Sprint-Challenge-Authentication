@@ -2,8 +2,7 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const Users = require("./auth-model")
 const authenticate = require("./authenticate-middleware")
-const secret = require("../config/secret")
-//const db = require("../database/dbConfig")
+const secret = require("../config/secret.js")
 
 const router = require("express").Router()
 
@@ -24,65 +23,39 @@ router.post("/register", async (req, res, next) => {
 	}
 })
 
-router.post("/login", async (req, res, next) => {
-	// const authError = {
-	// 	message: "Invalid Credentials",
-	// }
+router.post('/login', (req, res) => {
+  let { username, password } = req.body;
 
-	// try {
-	// 	const { username, password } = req.body
-	// 	const user = await Users.findBy( username ).first()
+  Users.findBy({ username })
+    .first()
+    .then(user => {
+      if (user && bcrypt.compareSync(password, user.password)) {
+		const token = generateToken(user); 
+		
+        res.status(200).json({
+          message: `Welcome ${user.username}!, have a token...`,
+          token,
+        });
+      } else {
+        res.status(401).json({ message: 'Invalid Credentials' });
+      }
+    })
+    .catch(error => {
+      res.status(500).json(error);
+    });
+});
 
-	// 	const passwordValid = await bcrypt.compare(password)
+function generateToken(user) {
+  const payload = {
+    subject: user.id,
+    username: user.username,
+  };
 
-	// 	if (!user || !passwordValid) {
-	// 		return res.status(401).json(authError)
-	// 	}
+  const options = {
+	expiresIn: '1d', 
+	};
 
-	// 	const tokenPayload = {
-	// 		userId: user.id,
-	// 		username: user.username
-	// 	}
-
-	// 	res.cookie("token", jwt.sign(tokenPayload, process.env.JWT_SECRET))
-
-	// 	res.status(200).json({
-	// 		message: `Welcome ${user.username}!`,
-	// 	})
-	// } catch(err) {
-	// 	next(err)
-	// }
-	try {
-		const { username, password } = req.body;
-		const user = await usersModel.findBy({ username }).first();
-		const pwValid = await bcrypt.compare(password, user.password);
-		// console.log(res);
-
-		if (user && pwValid) {
-			const token = jwt.sign(
-				{
-					subject: user.id,
-					username: user.username,
-				},
-				secrets.jwt,
-				{
-					expiresIn: '14d',
-				}
-			);
-
-			res.status(200).json({
-				message: 'Welcome, you are authorized!',
-				token: token,
-				userId: req.userId,
-			});
-		} else {
-			res.status(401).json({
-				message: 'Please sign-in!',
-			});
-		}
-	} catch (err) {
-		next(err);
-	}
-})
+  return jwt.sign(payload, secret.jwtSecret, options)
+}
 
 module.exports = router

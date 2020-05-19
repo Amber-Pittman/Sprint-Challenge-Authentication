@@ -49,9 +49,8 @@ describe("AuthN Integration Tests", () => {
             .then(res => {
                 expect(res.statusCode).toBe(200)
                 expect(res.type).toBe("application/json")
-                expect(res.body.id).toBe(1)
-                expect(res.body.username).toMatch(/newusertest/i)
-                expect(res.body.message).toMatch('Welcome, you are authorized!')
+                expect(res.body.message).toMatch(/Welcome/i)
+                
             })
     })
 })
